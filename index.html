@@ -15,7 +15,75 @@
 </head>
 
 <body>
+    <header class="jumbotron text-center">
+        <h1>Train Schedule</h1>
+    </header>
 
+    <div id="container">
+        <!-- Train Schedule Display -->
+        <div id="schedule" class="panel panel-primary">
+            <div class="panel-heading">
+                <span>Current Train Schedule</span>
+            </div>
+            <div class="panel-body">
+                <table class="table" id="trains">
+                    <thead>
+
+                        <th>Train Name</th>
+                        <th>Destination</th>
+                        <th>Frequency (mins)</th>
+                        <th>Next Arrival</th>
+                        <th>Minutes Away</th>
+
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Input to Add Train to Schedule -->
+        <form action="GET">
+            <div id="add_train" class="panel panel-primary">
+                <div class="panel-heading">
+                    <span>Add Train</span>
+                </div>
+                <div class="panel-body">
+                    <label for="train">Train Name</label>
+                    <input type="text" class="form-control" id="train">
+                    <br>
+
+                    <label for="destination">Destination</label>
+                    <input type="text" class="form-control" id="destination">
+                    <br>
+
+                    <label for="time">First Train Time(HH:mm - military)</label>
+                    <input type="text" class="form-control" id="time">
+                    <br>
+
+                    <label for="frequency">Frequency (mins)</label>
+                    <input type="text" class="form-control" id="frequency">
+                    <br>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+
+        </form>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!--     ******************** EXTERNAL SCRIPTS ******************** -->
     <!-- Include jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
