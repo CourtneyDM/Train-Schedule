@@ -14,41 +14,43 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
+
 <body>
     <header class="jumbotron text-center">
         <h1>Train Schedule</h1>
     </header>
 
+    <!-- Start of page content -->
     <div id="container">
-        <!-- Train Schedule Display -->
+
+        <!-- Train schedule display -->
         <div id="schedule" class="panel panel-primary">
             <div class="panel-heading">
                 <span>Current Train Schedule</span>
             </div>
             <div class="panel-body">
                 <table class="table" id="trains">
-                    <thead>
-
+                    <thead id="thead">
                         <th>Train Name</th>
                         <th>Destination</th>
                         <th>Frequency (mins)</th>
                         <th>Next Arrival</th>
                         <th>Minutes Away</th>
-
                     </thead>
+                    <tbody id="tbody"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- User Input to Add Train to Schedule -->
+        <!-- User input to add train to schedule -->
         <form action="GET">
             <div id="add_train" class="panel panel-primary">
                 <div class="panel-heading">
                     <span>Add Train</span>
                 </div>
                 <div class="panel-body">
-                    <label for="train">Train Name</label>
-                    <input type="text" class="form-control" id="train">
+                    <label for="name">Train Name</label>
+                    <input type="text" class="form-control" id="name">
                     <br>
 
                     <label for="destination">Destination</label>
@@ -63,24 +65,14 @@
                     <input type="text" class="form-control" id="frequency">
                     <br>
 
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
                 </div>
             </div>
 
         </form>
 
-
-
     </div>
-
-
-
-
-
-
-
-
-
+    <!-- End of page content -->
 
 
     <!--     ******************** EXTERNAL SCRIPTS ******************** -->
@@ -89,6 +81,9 @@
 
     <!-- Include Bootstrap 3.3.7 -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- Include Momemnt.js 2.12.0 -->
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
 
     <!-- Include Firebase 4.11.0 -->
     <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
