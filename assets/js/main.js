@@ -1,5 +1,6 @@
 // Object to store train information
 var train = {};
+var currentTime, firstTime, minsTilTrain, nextTrain, tFrequency, tRemainder;
 
 
 // Initialize Firebase
@@ -29,6 +30,36 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     var destination = document.getElementById("destination").value.trim();
     var time = document.getElementById("time").value.trim();
     var frequency = document.getElementById("frequency").value.trim();
+
+    // Set first time and frequency to user input
+    firstTime = time;
+    tFrequency = frequency;
+
+    // Get current time in military format
+    currentTime = moment().format("HH:mm");
+
+    // Set firstTime 1 month back and show results in minutes
+    var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "month");
+    console.log("firstTimeConverted: " + firstTimeConverted);
+
+    // Difference between the times
+    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+    console.log("DIFFERENCE IN TIME: " + diffTime);
+
+    // Time apart (remainder)
+    var tRemainder = diffTime % tFrequency;
+    console.log(tRemainder);
+
+    // Minute Until Train
+    var tMinutesTillTrain = tFrequency - tRemainder;
+    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+    // Next Train
+    var nextTrain = moment().add(minsTilTrain, "minutes");
+    console.log("ARRIVAL TIME: " + moment(nextTrain).format("LT"));
+
+
+
 
 
     train = {
