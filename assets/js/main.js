@@ -1,4 +1,4 @@
-// Object to store train information
+// Object to store train properties
 var train = {};
 
 // Initialize Firebase
@@ -15,7 +15,6 @@ firebase.initializeApp(config);
 // Reference to Firebase database
 var dbRefObject = firebase.database().ref();
 
-// console.log(database);
 
 // Event listener for Submit button
 document.getElementById("submitBtn").addEventListener("click", function () {
@@ -23,95 +22,84 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     // Stop default behavior of page reload
     event.preventDefault();
 
-
     // Store new train details from user input
     var name = document.getElementById("name").value.trim();
     var destination = document.getElementById("destination").value.trim();
-    var initialStart = document.getElementById("time").value.trim();
+    var initialTime = document.getElementById("time").value.trim();
     var frequency = document.getElementById("frequency").value.trim();
-
-    // Set first time and frequency to user input
-    var firstTime = initialStart;
-    var tFrequency = frequency;
-    var arrival;
 
     // Get current time in military format
     var currentTime = moment().format("HH:mm");
 
-    // Set firstTime 1 month back and show results in minutes
-    var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "month");
-    console.log("firstTimeConverted: " + firstTimeConverted);
+    // Take initialTime in military format (HH:mm), subtract 1 day and convert to milliseconds
+    var initialTimeConverted = moment(initialTime, "HH:mm").subtract(1, "day");
 
-    // Difference between the times
-    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-    console.log("DIFFERENCE IN TIME: " + diffTime);
+    // Calculate difference between current time and initialTime and convert into minutes
+    var diffTime = moment().diff(moment(initialTimeConverted), "minutes");
 
-    // Time apart (remainder)
-    var tRemainder = diffTime % tFrequency;
-    console.log("REMAINDER: " + tRemainder);
+    // Calculate the time apart, in minutes
+    var tRemainder = diffTime % frequency;
+    
+    // Calculate minutes until next train arrives
+    var tMinutesTillTrain = frequency - tRemainder;
 
-    // Minute Until Train
-    var tMinutesTillTrain = tFrequency - tRemainder;
-    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-
-    // Next Train
+    // Calculate time when next train when next train arrives
     var tArrival = moment().add(tMinutesTillTrain, "minutes");
-    console.log("ARRIVAL TIME: " + moment(tArrival).format("LT"));
 
-    arrival = tArrival;
-
+    // Save properties to the train object
     train = {
         name: name,
         destination: destination,
-        time: initialStart,
         frequency: parseInt(frequency),
+        arrival: moment(tArrival).format("LT"),
         minutes: tMinutesTillTrain
     }
 
+    // Add the train object to the database
     dbRefObject.push(train);
-
-    var tbody = document.getElementById("tbody");
-    var newRow = tbody.insertRow();
 });
 
-
+// Event listener for when a child is added to the database
 dbRefObject.on("child_added", snapshot => {
-    console.log("child added");
-    // var objRefKey = JSON.stringify(snapshot.key);
-    var tName = document.createTextNode(snapshot.val().name);
-    var tDestination = document.createTextNode(snapshot.val().destination);
-    var tFrequency = document.createTextNode(snapshot.val().frequency);
-    var tMinsToArrive = document.createTextNode(snapshot.val().minutes);
-    console.log("Train Name: " + tName);
-    console.log("Train Destination: " + tDestination);
-    console.log("Train Frequency: " + tMinsToArrive);
-    console.log("Minutes Away: " + tFrequency);
-    console.log(snapshot.numChildren());
 
-    var trainName = document.createElement("td").appendChild(tName);
+    // Create text nodes to display train properties
+    var nameText = document.createTextNode(snapshot.val().name);
+    var destText = document.createTextNode(snapshot.val().destination);
+    var freqText = document.createTextNode(snapshot.val().frequency);
+    var arriveText = document.createTextNode(snapshot.val().arrival);
+    var minsText = document.createTextNode(snapshot.val().minutes);
 
-    // console.log("Child key: " + objRefKey);
-    // console.log(snapshot.val().objRefKey);
+    // Create a reference to the table body
+    var tbody = document.getElementById("tbody");
 
+    // Create a new table row element
+    var tr = document.createElement("tr");
 
-    // TODO: assign the values of the childSnapshot to the variables below
-    // var sched_Name = document.createElement("td").setAttribute("id", "sched_name").innerText = tName;
-    // var sched_Dest = document.createElement("td").setAttribute("id", "sched_dest").innerText = tDestination;
-    // var sched_Freq = document.createElement("td").setAttribute("id", "sched_freq").innerText = tFrequency;
-    // var sched_Arrive = document.createElement("td").setAttribute("id", "sched_arrive").innerText = "Figure this out";
-    // var sched_Mins = document.createElement("td").setAttribute("id", "sched_mins").innerText = tMinsToArrive;
+    // Create new table data based on train properties
+    var nameData = document.createElement("td");
+    var destData = document.createElement("td");
+    var freqData = document.createElement("td");
+    var arriveData = document.createElement("td");
+    var minsData = document.createElement("td");
+    
+    // Append text nodes to the table data elements
+    nameData.append(nameText);
+    destData.append(destText);
+    freqData.append(freqText);
+    arriveData.append(arriveText);
+    minsData.append(minsText);
 
-    // var tbody = document.getElementById("tbody");
-    // var newRow = tbody.insertRow();
+    // Append table data nodes to table row
+    tr.append(nameData);
+    tr.append(destData);
+    tr.append(freqData);
+    tr.append(arriveData);
+    tr.append(minsData);
 
-    // newRow.appendChild(sched_Name).appendChild(sched_Dest).appendChild(sched_Freq).appendChild(sched_Arrive).appendChild(sched_Mins);
-
-    snapshot.forEach(childSnapShot => {
-        var childKey = childSnapShot.key;
-        var childData = childSnapShot.val();
-        console.log("childKey: " + childKey);
-    });
+    // Finally, append table row to table body
+    tbody.appendChild(tr);
 });
+
 
 dbRefObject.on("value", snapshot => {
     if (snapshot.numChildren() === 0) {
@@ -122,10 +110,10 @@ dbRefObject.on("value", snapshot => {
     }
 });
 
-dbRefObject.on("child_removed", snapshot => {
-    console.log("child removed");
-});
+// dbRefObject.on("child_removed", snapshot => {
+//     console.log("child removed");
+// });
 
-dbRefObject.on("child_changed", snapshot => {
-    console.log("child changed");
-});
+// dbRefObject.on("child_changed", snapshot => {
+//     console.log("child changed");
+// });
