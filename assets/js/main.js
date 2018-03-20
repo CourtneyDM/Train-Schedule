@@ -1,4 +1,4 @@
-// Object to store train properties
+// Global object to store train properties
 var train = {};
 
 // Initialize Firebase
@@ -13,7 +13,31 @@ var config = {
 firebase.initializeApp(config);
 
 // Reference to Firebase database
-var dbRefObject = firebase.database().ref();
+var dbRefObject = firebase.database();
+
+// Reference to the database connections
+var connectionsRef = dbRefObject.ref("/connections");
+
+// Reference to current connections
+var connectedRef = dbRefObject.ref(".info/connected");
+
+// Whenever there is a change in connection status
+connectedRef.on("value", snapshot => {
+    if(snapshot.val()){
+
+        // Add the current user to the connections list
+        var connect = connectionsRef.push(true);
+
+        // Remove the current user from the connections list once disconnected
+        connect.onDisconnect().remove();
+    }
+});
+
+
+// Test to check the number of connections when a user connects/disconnects
+connectionsRef.on("value", snapshot => {
+    console.log("Number of connections: " + snapshot.numChildren());
+});
 
 
 // Event listener for Submit button
@@ -22,7 +46,7 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     // Stop default behavior of page reload
     event.preventDefault();
 
-    // Store new train details from user input
+    // Get user input and store into variables
     var name = document.getElementById("name").value.trim();
     var destination = document.getElementById("destination").value.trim();
     var initialTime = document.getElementById("time").value.trim();
@@ -35,7 +59,7 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     var initialTimeConverted = moment(initialTime, "HH:mm").subtract(1, "day");
 
     // Calculate difference between current time and initialTime and convert into minutes
-    var diffTime = moment().diff(moment(initialTimeConverted), "minutes");
+    var diffTime = moment().diff(moment(initialTimeConverted), "minutes"); // currentTime and initialTime converted to minutes
 
     // Calculate the time apart, in minutes
     var tRemainder = diffTime % frequency;
@@ -56,11 +80,12 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     }
 
     // Add the train object to the database
-    dbRefObject.push(train);
+    dbRefObject.ref("trains/").push(train);
 });
 
+
 // Event listener for when a child is added to the database
-dbRefObject.on("child_added", snapshot => {
+dbRefObject.ref("trains/").on("child_added", snapshot => {
 
     // Create text nodes to display train properties
     var nameText = document.createTextNode(snapshot.val().name);
@@ -101,12 +126,9 @@ dbRefObject.on("child_added", snapshot => {
 });
 
 
-dbRefObject.on("value", snapshot => {
+dbRefObject.ref().on("value", snapshot => {
     if (snapshot.numChildren() === 0) {
         console.log("database is empty");
-    }
-    else {
-        console.log("value changed");
     }
 });
 
