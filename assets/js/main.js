@@ -28,9 +28,7 @@ connectedRef.on("value", snapshot => {
         // Add the current user to the connections list
         var connect = connectionsRef.push(true);
 
-        var currentTime = moment().format("HH:mm");
-
-        dbRefObject.ref("trains/").once("value", snapshot => {
+        dbRefObject.ref("trains/").on("value", snapshot => {
 
             snapshot.forEach(snap => {
 
