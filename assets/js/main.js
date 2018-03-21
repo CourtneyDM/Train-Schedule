@@ -34,11 +34,6 @@ connectedRef.on("value", snapshot => {
 
             snapshot.forEach(snap => {
 
-                var arrivalRef = snap.val().arrival;
-                var minsRef = snap.val().minutes;
-                var freqRef = snap.val().frequency;
-                // console.log("key: " + snap.key);
-
                 // Take initialTime in military format (HH:mm), subtract 1 day and convert to milliseconds
                 var initialConverted = moment(snap.val().initial, "HH:mm").subtract(1, "day");
 
@@ -58,6 +53,7 @@ connectedRef.on("value", snapshot => {
                 console.log("minutes remaining: " + minsRemain);
                 console.log("new arrival time: " + arriveTime);
 
+                // Reference the database at the specified key and update properties
                 dbRefObject.ref("trains/" + snap.key).update({
                     arrival: arriveTime,
                     minutes: minsRemain
