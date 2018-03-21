@@ -69,6 +69,39 @@ connectedRef.on("value", snapshot => {
 // Test to check the number of connections when a user connects/disconnects
 connectionsRef.on("value", connect => {
     console.log("Number of connections: " + connect.numChildren());
+
+
+    dbRefObject.ref("trains/").on("value", snapshot => {
+
+        snapshot.forEach(snap => {
+
+            // Take initialTime in military format (HH:mm), subtract 1 day and convert to milliseconds
+            var initialConverted = moment(snap.val().initial, "HH:mm").subtract(1, "day");
+
+            // Calculate difference between current time and initialTime and convert into minutes
+            var diffRef = moment().diff(moment(initialConverted), "minutes");
+
+            // Calculate the time apart, in minutes
+            var remainder = diffRef % snap.val().frequency;
+
+            // Calculate minutes until next train arrives
+            var minsRemain = snap.val().frequency - remainder;
+
+            // Calculate time when next train when next train arrives
+            var arriveTime = moment().add(minsRemain, "minutes");
+            arriveTime = moment(arriveTime).format("LT");
+
+            console.log("minutes remaining: " + minsRemain);
+            console.log("new arrival time: " + arriveTime);
+
+            // Reference the database at the specified key and update properties
+            dbRefObject.ref("trains/" + snap.key).update({
+                arrival: arriveTime,
+                minutes: minsRemain
+            });
+
+        });
+    });
 });
 
 
