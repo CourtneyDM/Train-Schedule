@@ -170,11 +170,3 @@ dbRefObject.ref("trains/").on("value", snapshot => {
         console.log("database is empty");
     }
 });
-
-// dbRefObject.on("child_removed", snapshot => {
-//     console.log("child removed");
-// });
-
-// dbRefObject.on("child_changed", snapshot => {
-//     console.log("child changed");
-// });
