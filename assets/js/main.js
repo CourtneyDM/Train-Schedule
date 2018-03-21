@@ -23,10 +23,48 @@ var connectedRef = dbRefObject.ref(".info/connected");
 
 // Whenever there is a change in connection status
 connectedRef.on("value", snapshot => {
-    if(snapshot.val()){
+    if (snapshot.val()) {
 
         // Add the current user to the connections list
         var connect = connectionsRef.push(true);
+
+        var currentTime = moment().format("HH:mm");
+
+        dbRefObject.ref("trains/").once("value", snapshot => {
+
+            snapshot.forEach(snap => {
+
+                var arrivalRef = snap.val().arrival;
+                var minsRef = snap.val().minutes;
+                var freqRef = snap.val().frequency;
+                // console.log("key: " + snap.key);
+
+                // Take initialTime in military format (HH:mm), subtract 1 day and convert to milliseconds
+                var initialConverted = moment(snap.val().initial, "HH:mm").subtract(1, "day");
+
+                // Calculate difference between current time and initialTime and convert into minutes
+                var diffRef = moment().diff(moment(initialConverted), "minutes");
+
+                // Calculate the time apart, in minutes
+                var remainder = diffRef % snap.val().frequency;
+
+                // Calculate minutes until next train arrives
+                var minsRemain = snap.val().frequency - remainder;
+
+                // Calculate time when next train when next train arrives
+                var arriveTime = moment().add(minsRemain, "minutes");
+                arriveTime = moment(arriveTime).format("LT");
+
+                console.log("minutes remaining: " + minsRemain);
+                console.log("new arrival time: " + arriveTime);
+
+                dbRefObject.ref("trains/" + snap.key).update({
+                    arrival: arriveTime,
+                    minutes: minsRemain
+                });
+
+            });
+        });
 
         // Remove the current user from the connections list once disconnected
         connect.onDisconnect().remove();
@@ -35,8 +73,8 @@ connectedRef.on("value", snapshot => {
 
 
 // Test to check the number of connections when a user connects/disconnects
-connectionsRef.on("value", snapshot => {
-    console.log("Number of connections: " + snapshot.numChildren());
+connectionsRef.on("value", connect => {
+    console.log("Number of connections: " + connect.numChildren());
 });
 
 
@@ -63,7 +101,7 @@ document.getElementById("submitBtn").addEventListener("click", function () {
 
     // Calculate the time apart, in minutes
     var tRemainder = diffTime % frequency;
-    
+
     // Calculate minutes until next train arrives
     var tMinutesTillTrain = frequency - tRemainder;
 
@@ -74,6 +112,7 @@ document.getElementById("submitBtn").addEventListener("click", function () {
     train = {
         name: name,
         destination: destination,
+        initial: initialTime,
         frequency: parseInt(frequency),
         arrival: moment(tArrival).format("LT"),
         minutes: tMinutesTillTrain
@@ -106,7 +145,7 @@ dbRefObject.ref("trains/").on("child_added", snapshot => {
     var freqData = document.createElement("td");
     var arriveData = document.createElement("td");
     var minsData = document.createElement("td");
-    
+
     // Append text nodes to the table data elements
     nameData.append(nameText);
     destData.append(destText);
@@ -126,7 +165,7 @@ dbRefObject.ref("trains/").on("child_added", snapshot => {
 });
 
 
-dbRefObject.ref().on("value", snapshot => {
+dbRefObject.ref("trains/").on("value", snapshot => {
     if (snapshot.numChildren() === 0) {
         console.log("database is empty");
     }
